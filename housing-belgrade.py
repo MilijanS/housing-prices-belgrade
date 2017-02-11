@@ -13,6 +13,9 @@ baza = pd.DataFrame(columns=atributi)
 halo_oglasi_stanovi_beograd = r'https://www.halooglasi.com/nekretnine/prodaja-stanova/beograd?cena_d_from=5000&cena_d_unit=4'
 halo_oglasi_kuce_beograd = r'https://www.halooglasi.com/nekretnine/prodaja-kuca/beograd?cena_d_from=3000&cena_d_unit=4'
 
+br_strana_stanovi = 1000
+br_strana_kuce = 119
+
 class Nekretnina:
     
     def __init__(self, grad, opstina, naselje, ulica, tip_nekretnine, kvadratura, broj_soba, cena):
@@ -74,6 +77,8 @@ def process_single_page(web_page, page_index):
         
             grad = info[0].string.replace('\xa0', '')
             opstina = info[1].string.replace('\xa0', '')
+            opstina = opstina.replace('Opština ', '')
+            
             naselje = info[2].string.replace('\xa0', '')
             
             ulica = str(info[3].string).replace('\xa0', '')
@@ -118,7 +123,7 @@ def process_website_pages(web_page, number_of_pages):
         print("End.\n")
         print(baza)
     
-process_website_pages(halo_oglasi_stanovi_beograd, 2)
-process_website_pages(halo_oglasi_kuce_beograd, 119)
+process_website_pages(halo_oglasi_stanovi_beograd, br_strana_stanovi)
+process_website_pages(halo_oglasi_kuce_beograd, br_strana_kuce)
 
-baza.to_csv('cene kuca i stanova 11.02.2017.csv', encoding='utf-8')
+baza.to_csv('cene kuca i stanova 11.02.2017. v2.csv', encoding='utf-8')
