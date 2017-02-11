@@ -99,7 +99,7 @@ for i in range(0, 1100):
                 baza.loc[len(baza)]=[grad, opstina, naselje, ulica, tip_nekretnine, kvadratura, broj_soba, cena]        
             
         except:
-            pass
+            pass 
                 
 print(baza)
 baza.to_csv('cene stanova.csv', encoding='utf-8')
