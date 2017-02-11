@@ -3,12 +3,15 @@ import random
 from bs4 import BeautifulSoup
 import re
 import pandas as pd
-
+import concurrent.futures
 
 
 atributi = ['Grad', 'Opstina', 'Naselje', 'Ulica', 'Tip', 'Kvadratura', 'Broj soba', 'Cena']
 
 baza = pd.DataFrame(columns=atributi)
+
+halo_oglasi_stanovi_beograd = r'https://www.halooglasi.com/nekretnine/prodaja-stanova/beograd?cena_d_from=5000&cena_d_unit=4'
+halo_oglasi_kuce_beograd = r'https://www.halooglasi.com/nekretnine/prodaja-kuca/beograd?cena_d_from=3000&cena_d_unit=4'
 
 class Nekretnina:
     
@@ -43,9 +46,10 @@ def dodaj_nekretninu_u_dataframe(df):
     pass
 
 #1125
-for i in range(0, 1100):
-            
-    url = r'https://www.halooglasi.com/nekretnine/prodaja-stanova/beograd?cena_d_from=5000&cena_d_unit=4&page=' + str(i)
+
+def process_single_page(web_page, page_index):
+    
+    url = web_page + '&page=' + str(page_index)
 
     page = urlopen(url)
 
@@ -101,17 +105,20 @@ for i in range(0, 1100):
         except:
             pass 
                 
-print(baza)
-baza.to_csv('cene stanova.csv', encoding='utf-8')
 
-        
-
-        
-        
-        
-        
-        
-        
-        
-        
+def process_website_pages(web_page, number_of_pages):
     
+    try:
+        
+        with concurrent.futures.ThreadPoolExecutor(max_workers=200) as executor:            
+            future_to_i = {executor.submit(process_single_page, web_page, page_index): page_index for page_index in range(0, number_of_pages)}         
+            
+    finally:
+        
+        print("End.\n")
+        print(baza)
+    
+process_website_pages(halo_oglasi_stanovi_beograd, 2)
+process_website_pages(halo_oglasi_kuce_beograd, 119)
+
+baza.to_csv('cene kuca i stanova 11.02.2017.csv', encoding='utf-8')
