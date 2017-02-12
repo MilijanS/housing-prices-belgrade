@@ -1,20 +1,23 @@
 from urllib.request import urlopen
 import random
 from bs4 import BeautifulSoup
+import html5lib
 import re
 import pandas as pd
 import concurrent.futures
 
-
 atributi = ['Grad', 'Opstina', 'Naselje', 'Ulica', 'Tip', 'Kvadratura', 'Broj soba', 'Cena']
+
+parser = 'lxml'
+
 
 baza = pd.DataFrame(columns=atributi)
 
 halo_oglasi_stanovi_beograd = r'https://www.halooglasi.com/nekretnine/prodaja-stanova/beograd?cena_d_from=5000&cena_d_unit=4'
-halo_oglasi_kuce_beograd = r'https://www.halooglasi.com/nekretnine/prodaja-kuca/beograd?cena_d_from=3000&cena_d_unit=4'
+halo_oglasi_kuce_beograd = r'https://www.halooglasi.com/nekretnine/prodaja-kuca/beograd?cena_d_from=4000&cena_d_unit=4'
 
-br_strana_stanovi = 1001
-br_strana_kuce = 101
+br_strana_stanovi = 1000
+br_strana_kuce = 100
 
 class Nekretnina:
     
@@ -48,22 +51,27 @@ class Nekretnina:
 def dodaj_nekretninu_u_dataframe(df):
     pass
 
-#1125
 
+
+#1125
 def process_single_page(web_page, page_index):
     
-    url = web_page + '&page=' + str(page_index)
+    print("Obradjujem stranicu {0}".format(page_index))
+    
+    url = web_page + r'&page=' + str(page_index)
 
     page = urlopen(url)
 
-    soup = BeautifulSoup(page, 'lxml')
+    soup = BeautifulSoup(page, parser)
     
     # mydivs sadrzi 20 razlicitih stanova
     mydivs = soup.findAll('div', { 'class' : 'col-md-12 col-sm-12 col-xs-12 col-lg-12'})
     
+    print('Na stranici je pronadjeno {0} nekretnina'.format(len(mydivs)))
     # odradi 20 stanova
     for div in mydivs:
         try:
+        
             # string price izgleda ovako '47.000\xa0€'
             string_price = div.find("span").string
             string_price = string_price.replace('\xa0€','')
@@ -100,32 +108,46 @@ def process_single_page(web_page, page_index):
             if kvadratura < 10 and type(tip_nekretnine)==float:
                 kvadratura, broj_soba = broj_soba, kvadratura
         
-            broj_soba = float(broj_soba)
+                        
+            print(grad, opstina, naselje, ulica, tip_nekretnine, kvadratura, broj_soba, cena)
             
             if kvadratura == broj_soba:
+                print('Kvadratura == broj soba')
                 continue
-            else:
-                baza.loc[len(baza)]=[grad, opstina, naselje, ulica, tip_nekretnine, kvadratura, broj_soba, cena]        
+            if ulica == 'None':
+                print('Nema informacije o ulici')
+                continue
+
+            print('Ubacujem u bazu nekretninu u {0}'.format(ulica))
+            baza.loc[len(baza)]=[grad, opstina, naselje, ulica, tip_nekretnine, kvadratura, broj_soba, cena]   
+  
+    
             
-        except:
-            pass 
+        except Exception as e:
+            print(e) 
+        finally:
+            pass
+        
+    print('Ubacio nekretnine sa stranice {0}'.format(page_index))    
                 
 
-def process_website_pages(web_page, number_of_pages):
+def process_website_pages(web_page, start_page, end_page):
     
     try:
         
-        with concurrent.futures.ThreadPoolExecutor(max_workers=200) as executor:            
-            future_to_i = {executor.submit(process_single_page, web_page, page_index): page_index for page_index in range(0, number_of_pages)}         
+        with concurrent.futures.ThreadPoolExecutor(max_workers=100) as executor:            
+            future_to_i = {executor.submit(process_single_page, web_page, page_index): page_index for page_index in range(start_page, end_page)}
             
     finally:
         
         print("End.\n")
         print(baza)
-    
+       
 def prikupi_cene_stanova_i_kuca_u_beogradu():
     
-    process_website_pages(halo_oglasi_kuce_beograd, br_strana_kuce)
-    process_website_pages(halo_oglasi_stanovi_beograd, br_strana_stanovi)
-    
-    baza.to_csv('cene kuca i stanova 11.02.2017. v2.csv', encoding='utf-8')
+    process_website_pages(web_page=halo_oglasi_kuce_beograd, start_page=1, end_page=2)
+      
+    """for i in range(0, 2):
+        process_website_pages(web_page=halo_oglasi_stanovi_beograd, start_page=i*100 + 1, end_page=(i+1)*100)"""
+            
+    #baza.to_csv('cene kuca i stanova 11.02.2017. v2.csv', encoding='utf-8')
