@@ -127,7 +127,7 @@ def process_single_page(web_page, page_index):
     print('Ubacio nekretnine sa stranice {0}'.format(page_index))    
                 
     
-def get_jsons(web_page, page_index):
+def get_jsons_from_page(web_page, page_index):
     
     print("Obradjujem stranicu {0}".format(page_index))
     
@@ -183,6 +183,17 @@ def process_website_pages(web_page, start_page, end_page):
     finally:
         print("Obradio sve stranice.\n")
         
+        
+def get_multiple_jsons(web_page, start_page, end_page):
+    
+    try:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=100) as executor:            
+            future_to_i = {executor.submit(get_jsons_from_page, web_page, page_index): page_index for page_index in range(start_page, end_page + 1)}
+    except Exception as e:
+        print(e)
+    finally:
+        print("Obradio sve stranice.\n")
+        
        
 def prikupi_cene_stanova_i_kuca_u_beogradu():
     
@@ -204,5 +215,7 @@ def pickle_json_array():
 def unpickle_json_array(filename):
     return pickle.load(open(filename, 'rb'))
     
+get_multiple_jsons(halo_oglasi_stanovi_beograd, 1, 100)
+get_multiple_jsons(halo_oglasi_stanovi_beograd, 1, 100)
+pickle_json_array()
 
-get_jsons(halo_oglasi_stanovi_beograd, 1)
