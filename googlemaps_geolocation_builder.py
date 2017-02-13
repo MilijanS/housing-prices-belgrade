@@ -11,3 +11,4 @@ def init_googlemaps_client():
 def get_location_from_street_name(street_name):
     geocode_result = gmaps.geocode('1600 Amphitheatre Parkway, Mountain View, CA')
     
+
