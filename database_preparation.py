@@ -142,6 +142,7 @@ def obradi_dataframe(df):
     #uklanjanje redova u kojima ulica nema vrednost
     df = df[df['Ulica'] != '']
     return df
+    
 
 def glavna_obrada():
     
@@ -165,11 +166,4 @@ def glavna_obrada():
         
     dataframe.to_csv('stanovi 11.2.2017. - konsolidovana imena ulica.csv', encoding='utf-8')
     
-    
-        
-
-
-    
-
-
-
+#glavna_obrada()
