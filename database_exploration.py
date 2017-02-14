@@ -4,7 +4,9 @@ import numpy as np
 
 import pandas as pd
 
-df = pd.read_csv('stanovi.csv')
+df = pd.read_csv('stanovi 11.2.csv', encoding='utf-8')
+df = df.drop('Unnamed: 0', axis=1)
+df = df.drop('Unnamed: 0.1', axis=1)
 
 df['Grad'] = df['Grad'].astype('category')
 df['Opstina'] = df['Opstina'].astype('category')
@@ -18,6 +20,9 @@ df['Sprat'] = df['Sprat'].astype('category')
 
 linreg = LinearRegression()
 
+x = df[['Opstina', 'Naselje', 'Ulica', 'Tip', 'Kvadratura', 'Broj soba', 'Grejanje', 'Sprat', 'Ukupna spratnost', 'Od centra']]
+x = pd.get_dummies(x)
 
+y = df['Cena']
 
 linreg.fit(x,y)

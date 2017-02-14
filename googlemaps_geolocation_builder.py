@@ -95,7 +95,7 @@ def build_street_to_location_map():
     finally:
             pass
                 
-        
+
     columns = ['Ulica', 'Koordinate', 'Od centra']
 
     street_names_location = pd.DataFrame(street_to_location_list, columns=columns)
