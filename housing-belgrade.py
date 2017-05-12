@@ -146,3 +146,4 @@ def prikupi_cene_stanova_i_kuca_u_beogradu():
 def eksportuj_kao_csv(naziv='Cene kuca i stanova'):
     
     dataframe.to_csv(naziv, encoding='utf-8')
+    
